@@ -3,7 +3,6 @@ import sys
 import random
 import io
 import base64
-import xml.etree.ElementTree as ET
 
 # Initialize Pygame
 pygame.init()
@@ -42,16 +41,7 @@ class Platform(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # Load spritesheet from SVG
-        tree = ET.parse('spritesheet_ghostrunner.svg')
-        root = tree.getroot()
-        image_tag = root.find('{http://www.w3.org/2000/svg}image')
-        href = image_tag.get('{http://www.w3.org/1999/xlink}href')
-
-        encoded_data = href.split(',')[1]
-        decoded_data = base64.b64decode(encoded_data)
-        image_file = io.BytesIO(decoded_data)
-        self.spritesheet = pygame.image.load(image_file).convert_alpha()
+        self.spritesheet = pygame.image.load("spritesheet.png").convert_alpha()
 
         sprite_rect = pygame.Rect(0, 0, 30, 40)
         self.original_image_right = self.spritesheet.subsurface(sprite_rect)
@@ -62,7 +52,7 @@ class Player(pygame.sprite.Sprite):
 
         # Movement
         self.velocity = pygame.math.Vector2(0, 0)
-        self.acceleration = pygame.math.Vector2(0, 0.5) # Gravity
+        self.acceleration = pygame.math.Vector2(0, 0.8) # Gravity
         self.is_jumping = False
         self.facing_right = True
         self.weapon_index = 0
@@ -71,7 +61,7 @@ class Player(pygame.sprite.Sprite):
         # Dash ability
         self.is_dashing = False
         self.dash_duration = 200 # ms
-        self.dash_speed = 10
+        self.dash_speed = 20
         self.dash_cooldown = 1000 # ms
         self.last_dash_time = -self.dash_cooldown
 
@@ -79,28 +69,27 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         move_speed = 5
 
-        dash_speed_bonus = 0
         if self.is_dashing:
             if pygame.time.get_ticks() - self.dash_start_time > self.dash_duration:
                 self.is_dashing = False
             else:
-                dash_speed_bonus = self.dash_speed
-
-        # Horizontal Movement
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.velocity.x = -(move_speed + dash_speed_bonus)
-            if self.facing_right:
-                self.facing_right = False
-                self.image = self.original_image_left
-        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.velocity.x = move_speed + dash_speed_bonus
-            if not self.facing_right:
-                self.facing_right = True
-                self.image = self.original_image_right
+                dash_impulse = self.dash_speed if self.facing_right else -self.dash_speed
+                self.rect.x += dash_impulse
         else:
-            self.velocity.x = 0
-
-        self.rect.x += self.velocity.x
+            # Horizontal Movement
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                self.velocity.x = -move_speed
+                if self.facing_right:
+                    self.facing_right = False
+                    self.image = self.original_image_left
+            elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                self.velocity.x = move_speed
+                if not self.facing_right:
+                    self.facing_right = True
+                    self.image = self.original_image_right
+            else:
+                self.velocity.x = 0
+            self.rect.x += self.velocity.x
 
         # Vertical Movement
         self.velocity.y += self.acceleration.y
@@ -116,7 +105,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         if not self.is_jumping:
-            self.velocity.y = -15
+            self.velocity.y = -18
             self.is_jumping = True
 
     def attack(self, all_sprites, attacks):
@@ -154,7 +143,7 @@ class Sword(pygame.sprite.Sprite):
         self.spawn_time = pygame.time.get_ticks()
         self.player_rect = player_rect
 
-    def update(self, platforms):
+    def update(self):
         now = pygame.time.get_ticks()
         if now - self.spawn_time > 200:
             self.kill()
@@ -174,11 +163,12 @@ class Dagger(pygame.sprite.Sprite):
         self.angle = 0
         self.rotation_speed = 15
 
-    def update(self, platforms):
+    def update(self):
         self.rect.x += self.velocity_x
+        center = self.rect.center
         self.angle = (self.angle + self.rotation_speed) % 360
         self.image = pygame.transform.rotate(self.original_image, self.angle)
-        self.rect = self.image.get_rect(center=self.rect.center)
+        self.rect = self.image.get_rect(center=center)
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -193,7 +183,7 @@ class Enemy(pygame.sprite.Sprite):
         self.patrol_range = 100
         self.start_x = x
 
-    def update(self, platforms):
+    def update(self):
         self.rect.x += self.direction
         if self.rect.x > self.start_x + self.patrol_range or self.rect.x < self.start_x:
             self.direction *= -1
@@ -223,6 +213,7 @@ def main():
     all_sprites.add(enemies)
 
     camera_x = 0
+    camera_y = 0
 
     leftmost_x = -SCREEN_WIDTH * 2
     rightmost_x = ground.rect.right
@@ -247,8 +238,8 @@ def main():
 
         # Update
         player.update(platforms)
-        enemies.update(platforms)
-        attacks.update(platforms)
+        enemies.update()
+        attacks.update()
 
         # Procedural Generation
         if player.rect.right > rightmost_x - SCREEN_WIDTH:
@@ -293,11 +284,12 @@ def main():
             running = False
 
         camera_x = player.rect.x - SCREEN_WIDTH / 2
+        camera_y = player.rect.y - SCREEN_HEIGHT / 2
 
         # Drawing
         screen.fill(WHITE)
         for sprite in all_sprites:
-            screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y))
+            screen.blit(sprite.image, (sprite.rect.x - camera_x, sprite.rect.y - camera_y))
 
         pygame.display.flip()
         clock.tick(60)
