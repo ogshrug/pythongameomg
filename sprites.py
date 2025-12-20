@@ -8,8 +8,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface((30, 40))
         self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
-        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        self.pos = pygame.math.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self.vel = pygame.math.Vector2(0, 0)
         self.acc = pygame.math.Vector2(0, 0)
         self.lives = 3
@@ -75,7 +75,7 @@ class Player(pygame.sprite.Sprite):
                 self.lives -= 1
                 if self.lives > 0:
                     self.health = DIFFICULTY_LEVELS[self.game.difficulty]["PLAYER_HEALTH"]
-                    self.pos = pygame.math.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+                    self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                     self.vel = pygame.math.Vector2(0, 0)
                 else:
                     self.game.playing = False # Game over

@@ -49,7 +49,7 @@ class Game:
         self.platforms.add(p1)
         self.scrollable_sprites.add(p1)
         self.platform_edges.extend([p1.rect.left, p1.rect.right])
-        p2 = Platform(SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT * 3 / 4, 100, 20)
+        p2 = Platform(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT * 3 // 4, 100, 20)
         self.all_sprites.add(p2)
         self.platforms.add(p2)
         self.scrollable_sprites.add(p2)
@@ -113,7 +113,7 @@ class Game:
                         self.spawn_boss()
 
         # Scroll the screen
-        if self.player.rect.right >= SCREEN_WIDTH * 3 / 4:
+        if self.player.rect.right >= SCREEN_WIDTH * 3 // 4:
             self.player.pos.x -= max(abs(self.player.vel.x), 2)
             for sprite in self.scrollable_sprites:
                 sprite.rect.x -= max(abs(self.player.vel.x), 2)
@@ -126,7 +126,7 @@ class Game:
                         except ValueError:
                             pass
 
-        if self.player.rect.left <= SCREEN_WIDTH / 4:
+        if self.player.rect.left <= SCREEN_WIDTH // 4:
             self.player.pos.x += max(abs(self.player.vel.x), 2)
             for sprite in self.scrollable_sprites:
                 sprite.rect.x += max(abs(self.player.vel.x), 2)
@@ -145,7 +145,7 @@ class Game:
             self.last_enemy_spawn = now
             if self.platform_edges:
                 x = random.choice(self.platform_edges)
-                y = random.randrange(SCREEN_HEIGHT / 2, SCREEN_HEIGHT * 3 / 4)
+                y = random.randrange(SCREEN_HEIGHT // 2, SCREEN_HEIGHT * 3 // 4)
                 enemy_type = random.choice([GroundPatroller, FlyingDrone, AmbushCrawler])
                 enemy = enemy_type(x, y, self)
                 self.all_sprites.add(enemy)
@@ -193,7 +193,7 @@ class Game:
         pygame.display.flip()
 
     def spawn_boss(self):
-        boss = Boss(SCREEN_WIDTH / 2, 50, self)
+        boss = Boss(SCREEN_WIDTH // 2, 50, self)
         self.all_sprites.add(boss)
         self.enemies.add(boss)
         self.boss_incoming = True
@@ -228,7 +228,7 @@ class Game:
         if self.boss_incoming:
             now = pygame.time.get_ticks()
             if now - self.boss_incoming_timer < 2000:
-                self.draw_text("Boss Incoming!", 48, RED, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+                self.draw_text("Boss Incoming!", 48, RED, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
             else:
                 self.boss_incoming = False
 
@@ -241,11 +241,11 @@ class Game:
 
     def show_start_screen(self):
         self.screen.fill(BLACK)
-        self.draw_text("Infinite Platform Shooter", 48, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
-        self.draw_text("Select Difficulty:", 22, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-        self.draw_text("E - Easy", 22, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 40)
-        self.draw_text("M - Medium", 22, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 70)
-        self.draw_text("H - Hard", 22, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 100)
+        self.draw_text("Infinite Platform Shooter", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
+        self.draw_text("Select Difficulty:", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.draw_text("E - Easy", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40)
+        self.draw_text("M - Medium", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 70)
+        self.draw_text("H - Hard", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
         pygame.display.flip()
         self.wait_for_key()
 
@@ -283,8 +283,8 @@ class Game:
         if not self.running:
             return
         self.screen.fill(BLACK)
-        self.draw_text("GAME OVER", 48, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
-        self.draw_text("Press a key to play again", 22, WHITE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.draw_text("GAME OVER", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
+        self.draw_text("Press a key to play again", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         pygame.display.flip()
         self.wait_for_any_key()
 
