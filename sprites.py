@@ -32,9 +32,9 @@ class Player(pygame.sprite.Sprite):
 
         self.acc = pygame.math.Vector2(0, PLAYER_GRAV)
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             self.acc.x = -PLAYER_ACC
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             self.acc.x = PLAYER_ACC
 
         # apply friction
@@ -67,6 +67,19 @@ class Player(pygame.sprite.Sprite):
             blast = KineticBlast(self.pos.x, self.pos.y, self.vel.x >= 0)
             self.game.all_sprites.add(blast)
             self.game.projectiles.add(blast)
+
+    def melee_attack(self):
+        # Create a hitbox for the melee attack
+        hitbox_rect = self.rect.inflate(50, 20)
+        if self.vel.x >= 0:
+            hitbox_rect.left = self.rect.right
+        else:
+            hitbox_rect.right = self.rect.left
+
+        for enemy in self.game.enemies:
+            if hitbox_rect.colliderect(enemy.rect):
+                enemy.kill()
+                self.game.score += 5
 
     def take_damage(self, amount):
         if not self.invulnerable:
@@ -106,6 +119,8 @@ class GroundPatroller(pygame.sprite.Sprite):
         self.speed = DIFFICULTY_LEVELS[self.game.difficulty]["ENEMY_SPEED"]
 
     def update(self):
+        # GroundPatroller is a melee enemy that moves left and right
+        # Damage is handled on collision in main.py
         self.rect.x += self.direction * self.speed
         if self.rect.x > self.start_x + self.patrol_range or self.rect.x < self.start_x:
             self.direction *= -1
@@ -122,6 +137,7 @@ class FlyingDrone(pygame.sprite.Sprite):
         self.last_shot = pygame.time.get_ticks()
 
     def update(self):
+        # Drones are stationary and shoot downwards
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
@@ -142,17 +158,17 @@ class SlamEffect(pygame.sprite.Sprite):
             self.kill()
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, direction="down"):
         super().__init__()
         self.image = pygame.Surface((10, 20))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x, y)
-        self.speedy = 5
+        self.speedy = 5 if direction == "down" else -5
 
     def update(self):
         self.rect.y += self.speedy
-        if self.rect.bottom > SCREEN_HEIGHT:
+        if self.rect.bottom > SCREEN_HEIGHT or self.rect.top < 0:
             self.kill()
 
 class AmbushCrawler(pygame.sprite.Sprite):
