@@ -103,7 +103,8 @@ class GroundPatroller(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.get_image(0, 0, 32, 48)
+        self.sprite_coords = (0, 0, 32, 48)  # Placeholder for different sprites
+        self.image = self.game.spritesheet.get_image(*self.sprite_coords)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.direction = 1
@@ -122,7 +123,8 @@ class FlyingDrone(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.get_image(32, 0, 32, 48)
+        self.sprite_coords = (0, 0, 32, 48)  # Placeholder for different sprites
+        self.image = self.game.spritesheet.get_image(*self.sprite_coords)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.shoot_delay = 1000
@@ -163,22 +165,6 @@ class Projectile(pygame.sprite.Sprite):
         if self.rect.bottom > SCREEN_HEIGHT or self.rect.top < 0:
             self.kill()
 
-class AmbushCrawler(pygame.sprite.Sprite):
-    def __init__(self, x, y, game):
-        super().__init__()
-        self.game = game
-        self.image = pygame.Surface((20, 20))
-        self.image.fill(BLUE)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        self.speed = DIFFICULTY_LEVELS[self.game.difficulty]["ENEMY_SPEED"]
-
-    def update(self):
-        if abs(self.rect.x - self.game.player.rect.x) < 200:
-            if self.rect.x < self.game.player.rect.x:
-                self.rect.x += self.speed
-            else:
-                self.rect.x -= self.speed
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
