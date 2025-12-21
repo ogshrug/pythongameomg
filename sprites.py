@@ -1,12 +1,20 @@
 import pygame
 from settings import *
 
+class Spritesheet:
+    def __init__(self, filename):
+        self.spritesheet = pygame.image.load(filename).convert_alpha()
+
+    def get_image(self, x, y, width, height):
+        image = pygame.Surface((width, height), pygame.SRCALPHA)
+        image.blit(self.spritesheet, (0, 0), (x, y, width, height))
+        return image
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
         self.game = game
-        self.image = pygame.Surface((30, 40))
-        self.image.fill(YELLOW)
+        self.image = self.game.spritesheet.get_image(0, 0, 32, 48)
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -109,8 +117,7 @@ class GroundPatroller(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(RED)
+        self.image = self.game.spritesheet.get_image(0, 48, 32, 48)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.direction = 1
@@ -129,8 +136,7 @@ class FlyingDrone(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = pygame.Surface((40, 20))
-        self.image.fill(CYAN)
+        self.image = self.game.spritesheet.get_image(32, 48, 32, 48)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.shoot_delay = 1000

@@ -27,7 +27,7 @@ KINETIC_BLAST_COST = 50
 ENERGY_REGEN = 0.5
 
 # Enemy properties
-ENEMY_SPAWN_RATE = 100
+ENEMY_SPAWN_RATE = 200  # Increased from 100
 ENEMY_SPEED = 2
 ENEMY_DAMAGE = 10
 
@@ -38,19 +38,19 @@ BOSS_SPAWN_KILL_COUNT = 5
 # Difficulty settings
 DIFFICULTY_LEVELS = {
     "Easy": {
-        "ENEMY_SPAWN_RATE": 150,
+        "ENEMY_SPAWN_RATE": 250,  # Increased from 150
         "ENEMY_SPEED": 2,
         "ENEMY_DAMAGE": 5,
         "PLAYER_HEALTH": 150,
     },
     "Medium": {
-        "ENEMY_SPAWN_RATE": 100,
+        "ENEMY_SPAWN_RATE": 200,  # Increased from 100
         "ENEMY_SPEED": 3,
         "ENEMY_DAMAGE": 10,
         "PLAYER_HEALTH": 100,
     },
     "Hard": {
-        "ENEMY_SPAWN_RATE": 50,
+        "ENEMY_SPAWN_RATE": 100,  # Increased from 50
         "ENEMY_SPEED": 4,
         "ENEMY_DAMAGE": 15,
         "PLAYER_HEALTH": 75,
