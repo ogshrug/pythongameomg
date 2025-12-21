@@ -9,7 +9,7 @@ from settings import (SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, FPS, BLACK, WHITE,
                     MAX_GROUND_ENEMIES, MAX_FLYING_ENEMIES, ENEMY_RESPAWN_COOLDOWN,
                     BOSS_HEALTH, BOSS_SPAWN_KILL_COUNT, DIFFICULTY_LEVELS)
 from sprites import (Player, Platform, GroundPatroller, FlyingDrone,
-                     AmbushCrawler, Boss, Projectile, SlamEffect, Spritesheet)
+                     Boss, Projectile, SlamEffect, Spritesheet)
 
 class Game:
     def __init__(self):
@@ -62,7 +62,6 @@ class Game:
         enemy = GroundPatroller(p2.rect.centerx, p2.rect.top - 30, self)
         self.all_sprites.add(enemy)
         self.enemies.add(enemy)
-        self.scrollable_sprites.add(enemy)
 
         self.run()
 
@@ -145,7 +144,7 @@ class Game:
 
         # Spawn new enemies
         now = pygame.time.get_ticks()
-        num_ground_enemies = len([e for e in self.enemies if isinstance(e, (GroundPatroller, AmbushCrawler))])
+        num_ground_enemies = len([e for e in self.enemies if isinstance(e, GroundPatroller)])
         num_flying_enemies = len([e for e in self.enemies if isinstance(e, FlyingDrone)])
 
         # Ground enemies
@@ -156,11 +155,9 @@ class Game:
             if self.platform_edges:
                 x = random.choice(self.platform_edges)
                 y = random.randrange(SCREEN_HEIGHT // 2, SCREEN_HEIGHT * 3 // 4)
-                enemy_type = random.choice([GroundPatroller, AmbushCrawler])
-                enemy = enemy_type(x, y, self)
+                enemy = GroundPatroller(x, y, self)
                 self.all_sprites.add(enemy)
                 self.enemies.add(enemy)
-                self.scrollable_sprites.add(enemy)
         # Flying drones
         if now - self.last_drone_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] * 2 and \
            num_flying_enemies < MAX_FLYING_ENEMIES and \
