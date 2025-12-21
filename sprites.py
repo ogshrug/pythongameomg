@@ -14,7 +14,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.get_image(0, 0, 32, 48)
+        self.image = self.game.spritesheet.get_image(0, 48, 32, 48)
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -26,15 +26,10 @@ class Player(pygame.sprite.Sprite):
         self.invulnerable = False
         self.invulnerability_duration = 500  # ms
         self.last_hit_time = 0
-        self.last_dash_time = 0
-        self.dashing = False
 
     def update(self):
         if self.invulnerable and pygame.time.get_ticks() - self.last_hit_time > self.invulnerability_duration:
             self.invulnerable = False
-
-        if self.dashing and pygame.time.get_ticks() - self.last_dash_time > DASH_DURATION:
-            self.dashing = False
 
         self.energy = min(100, self.energy + ENERGY_REGEN)
 
@@ -60,29 +55,19 @@ class Player(pygame.sprite.Sprite):
         if hits:
             self.vel.y = -PLAYER_JUMP
 
-    def dash(self):
-        now = pygame.time.get_ticks()
-        if now - self.last_dash_time > DASH_COOLDOWN:
-            self.last_dash_time = now
-            self.dashing = True
-            self.vel.x = DASH_SPEED if self.vel.x >= 0 else -DASH_SPEED
-            self.invulnerable = True
-            self.last_hit_time = now
-
     def kinetic_blast(self):
         if self.energy >= KINETIC_BLAST_COST:
             self.energy -= KINETIC_BLAST_COST
-            blast = KineticBlast(self.pos.x, self.pos.y, self.vel.x >= 0)
+            blast = Projectile(self.pos.x, self.pos.y, "up")
             self.game.all_sprites.add(blast)
             self.game.projectiles.add(blast)
 
     def melee_attack(self):
         # Create a hitbox for the melee attack
-        hitbox_rect = self.rect.inflate(50, 20)
-        if self.vel.x >= 0:
-            hitbox_rect.left = self.rect.right
-        else:
-            hitbox_rect.right = self.rect.left
+        if self.vel.x >= 0:  # Facing right
+            hitbox_rect = pygame.Rect(self.rect.right, self.rect.top, 64, self.rect.height)
+        else:  # Facing left
+            hitbox_rect = pygame.Rect(self.rect.left - 64, self.rect.top, 64, self.rect.height)
 
         for enemy in self.game.enemies:
             if hitbox_rect.colliderect(enemy.rect):
@@ -117,7 +102,7 @@ class GroundPatroller(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.get_image(0, 48, 32, 48)
+        self.image = self.game.spritesheet.get_image(0, 0, 32, 48)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.direction = 1
@@ -136,7 +121,7 @@ class FlyingDrone(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.get_image(32, 48, 32, 48)
+        self.image = self.game.spritesheet.get_image(32, 0, 32, 48)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.shoot_delay = 1000
@@ -193,21 +178,6 @@ class AmbushCrawler(pygame.sprite.Sprite):
                 self.rect.x += self.speed
             else:
                 self.rect.x -= self.speed
-
-class KineticBlast(pygame.sprite.Sprite):
-    def __init__(self, x, y, facing_right):
-        super().__init__()
-        self.image = pygame.Surface((20, 20))
-        self.image.fill(RED)
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.speed = 15
-        self.direction = 1 if facing_right else -1
-
-    def update(self):
-        self.rect.x += self.speed * self.direction
-        if self.rect.left > SCREEN_WIDTH or self.rect.right < 0:
-            self.kill()
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
