@@ -8,7 +8,7 @@ from settings import (SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, FPS, BLACK, WHITE,
                     ENEMY_SPAWN_RATE, ENEMY_SPEED, ENEMY_DAMAGE,
                     BOSS_HEALTH, BOSS_SPAWN_KILL_COUNT, DIFFICULTY_LEVELS)
 from sprites import (Player, Platform, GroundPatroller, FlyingDrone,
-                     AmbushCrawler, Boss, Projectile, SlamEffect, KineticBlast)
+                     AmbushCrawler, Boss, Projectile, SlamEffect, KineticBlast, Spritesheet)
 
 class Game:
     def __init__(self):
@@ -25,7 +25,7 @@ class Game:
 
     def load_data(self):
         # Load spritesheet image
-        self.spritesheet = pygame.image.load("spritesheet.png").convert_alpha()
+        self.spritesheet = Spritesheet("spritesheet.png")
 
     def new(self):
         # start a new game
@@ -187,7 +187,7 @@ class Game:
                     self.playing = False
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_w:
+                if event.key == pygame.K_SPACE:
                     self.player.jump()
                 if event.key == pygame.K_LSHIFT:
                     self.player.dash()
