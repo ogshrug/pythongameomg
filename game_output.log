@@ -7,5 +7,3 @@ ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
 ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
 ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
 ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
-pygame 2.6.1 (SDL 2.28.4, Python 3.12.12)
-Hello from the pygame community. https://www.pygame.org/contribute.html

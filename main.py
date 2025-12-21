@@ -27,7 +27,7 @@ class Game:
     def load_data(self):
         # Load spritesheet image
         self.spritesheet = Spritesheet("player-fullsize.png")
-        self.drone_spritesheet = Spritesheet("drone-32x32-topleft.png")
+        self.drone_spritesheet = Spritesheet("drone-fullsize.png")
         self.groundenemy_spritesheet = Spritesheet("groundenemy-32x32-topleft.png")
 
     def new(self):
