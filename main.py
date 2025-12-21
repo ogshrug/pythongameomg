@@ -32,6 +32,7 @@ class Game:
         self.score = 0
         self.kill_count = 0
         self.last_enemy_spawn = pygame.time.get_ticks()
+        self.last_drone_spawn = pygame.time.get_ticks()
         self.all_sprites = pygame.sprite.Group()
         self.platforms = pygame.sprite.Group()
         self.projectiles = pygame.sprite.Group()
@@ -141,16 +142,25 @@ class Game:
 
         # Spawn new enemies
         now = pygame.time.get_ticks()
+        # Ground enemies
         if now - self.last_enemy_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"]:
             self.last_enemy_spawn = now
             if self.platform_edges:
                 x = random.choice(self.platform_edges)
                 y = random.randrange(SCREEN_HEIGHT // 2, SCREEN_HEIGHT * 3 // 4)
-                enemy_type = random.choice([GroundPatroller, FlyingDrone, AmbushCrawler])
+                enemy_type = random.choice([GroundPatroller, AmbushCrawler])
                 enemy = enemy_type(x, y, self)
                 self.all_sprites.add(enemy)
                 self.enemies.add(enemy)
                 self.scrollable_sprites.add(enemy)
+        # Flying drones
+        if now - self.last_drone_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] * 2:
+            self.last_drone_spawn = now
+            x = random.randrange(0, SCREEN_WIDTH)
+            y = random.randrange(0, 50)
+            drone = FlyingDrone(x, y, self)
+            self.all_sprites.add(drone)
+            self.enemies.add(drone)
 
         # Procedural platform generation
         while len(self.platforms) < 10:
@@ -177,12 +187,19 @@ class Game:
                     self.playing = False
                 self.running = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_w:
                     self.player.jump()
                 if event.key == pygame.K_LSHIFT:
                     self.player.dash()
-                if event.key == pygame.K_f:
+                if event.key == pygame.K_q:
                     self.player.kinetic_blast()
+                if event.key == pygame.K_e:
+                    self.player.melee_attack()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Left-click
+                    self.player.kinetic_blast()
+                if event.button == 3:  # Right-click
+                    self.player.melee_attack()
 
     def draw(self):
         # Game Loop - draw
