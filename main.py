@@ -6,9 +6,10 @@ from settings import (SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, FPS, BLACK, WHITE,
                     PLAYER_GRAV, PLAYER_JUMP, DASH_SPEED, DASH_DURATION,
                     DASH_COOLDOWN, KINETIC_BLAST_COST, ENERGY_REGEN,
                     ENEMY_SPAWN_RATE, ENEMY_SPEED, ENEMY_DAMAGE,
+                    MAX_GROUND_ENEMIES, MAX_FLYING_ENEMIES, ENEMY_RESPAWN_COOLDOWN,
                     BOSS_HEALTH, BOSS_SPAWN_KILL_COUNT, DIFFICULTY_LEVELS)
 from sprites import (Player, Platform, GroundPatroller, FlyingDrone,
-                     AmbushCrawler, Boss, Projectile, SlamEffect, KineticBlast, Spritesheet)
+                     AmbushCrawler, Boss, Projectile, SlamEffect, Spritesheet)
 
 class Game:
     def __init__(self):
@@ -33,6 +34,7 @@ class Game:
         self.kill_count = 0
         self.last_enemy_spawn = pygame.time.get_ticks()
         self.last_drone_spawn = pygame.time.get_ticks()
+        self.last_enemy_kill_time = 0
         self.all_sprites = pygame.sprite.Group()
         self.platforms = pygame.sprite.Group()
         self.projectiles = pygame.sprite.Group()
@@ -108,6 +110,7 @@ class Game:
                         self.kill_count = 0
                 else:
                     hit.kill()
+                    self.last_enemy_kill_time = pygame.time.get_ticks()
                     self.score += 10
                     self.kill_count += 1
                     if self.kill_count % BOSS_SPAWN_KILL_COUNT == 0:
@@ -142,8 +145,13 @@ class Game:
 
         # Spawn new enemies
         now = pygame.time.get_ticks()
+        num_ground_enemies = len([e for e in self.enemies if isinstance(e, (GroundPatroller, AmbushCrawler))])
+        num_flying_enemies = len([e for e in self.enemies if isinstance(e, FlyingDrone)])
+
         # Ground enemies
-        if now - self.last_enemy_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"]:
+        if now - self.last_enemy_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] and \
+           num_ground_enemies < MAX_GROUND_ENEMIES and \
+           now - self.last_enemy_kill_time > ENEMY_RESPAWN_COOLDOWN:
             self.last_enemy_spawn = now
             if self.platform_edges:
                 x = random.choice(self.platform_edges)
@@ -154,7 +162,9 @@ class Game:
                 self.enemies.add(enemy)
                 self.scrollable_sprites.add(enemy)
         # Flying drones
-        if now - self.last_drone_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] * 2:
+        if now - self.last_drone_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] * 2 and \
+           num_flying_enemies < MAX_FLYING_ENEMIES and \
+           now - self.last_enemy_kill_time > ENEMY_RESPAWN_COOLDOWN:
             self.last_drone_spawn = now
             x = random.randrange(0, SCREEN_WIDTH)
             y = random.randrange(0, 50)
@@ -189,8 +199,6 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
-                if event.key == pygame.K_LSHIFT:
-                    self.player.dash()
                 if event.key == pygame.K_q:
                     self.player.kinetic_blast()
                 if event.key == pygame.K_e:
@@ -234,10 +242,6 @@ class Game:
         # Energy
         energy_text = font.render(f"Energy: {self.player.energy}", True, CYAN)
         self.screen.blit(energy_text, (10, 100))
-        # Dash Cooldown
-        dash_cooldown = max(0, (self.player.last_dash_time + DASH_COOLDOWN) - pygame.time.get_ticks()) / 1000
-        dash_text = font.render(f"Dash CD: {dash_cooldown:.1f}", True, WHITE)
-        self.screen.blit(dash_text, (10, 130))
         # Difficulty
         difficulty_text = font.render(f"Difficulty: {self.difficulty}", True, WHITE)
         self.screen.blit(difficulty_text, (SCREEN_WIDTH - 150, 10))
