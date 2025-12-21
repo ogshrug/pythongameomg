@@ -103,8 +103,8 @@ class GroundPatroller(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.sprite_coords = (0, 0, 32, 48)  # Placeholder for different sprites
-        self.image = self.game.spritesheet.get_image(*self.sprite_coords)
+        self.sprite_coords = (0, 0, 32, 32)
+        self.image = self.game.groundenemy_spritesheet.get_image(*self.sprite_coords)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.direction = 1
@@ -123,8 +123,8 @@ class FlyingDrone(pygame.sprite.Sprite):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.sprite_coords = (0, 0, 32, 48)  # Placeholder for different sprites
-        self.image = self.game.spritesheet.get_image(*self.sprite_coords)
+        self.sprite_coords = (0, 0, 32, 32)
+        self.image = self.game.drone_spritesheet.get_image(*self.sprite_coords)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.shoot_delay = 1000
