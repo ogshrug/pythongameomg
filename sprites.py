@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.get_image(0, 48, 32, 48)
+        self.image = self.game.spritesheet.spritesheet
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -124,7 +124,7 @@ class FlyingDrone(pygame.sprite.Sprite):
         super().__init__()
         self.game = game
         self.sprite_coords = (0, 0, 32, 32)
-        self.image = self.game.drone_spritesheet.get_image(*self.sprite_coords)
+        self.image = self.game.drone_spritesheet.spritesheet
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.shoot_delay = 1000
