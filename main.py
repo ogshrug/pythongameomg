@@ -29,6 +29,7 @@ class Game:
         self.spritesheet = Spritesheet("player-fullsize.png")
         self.drone_spritesheet = Spritesheet("drone-fullsize.png")
         self.groundenemy_spritesheet = Spritesheet("groundenemy-32x32-topleft.png")
+        self.brick_wall_texture = pygame.image.load("brick_wall.png").convert_alpha()
 
     def new(self):
         # start a new game
@@ -49,12 +50,12 @@ class Game:
         self.player.health = DIFFICULTY_LEVELS[self.difficulty]["PLAYER_HEALTH"]
         self.all_sprites.add(self.player)
 
-        p1 = Platform(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40)
+        p1 = Platform(0, SCREEN_HEIGHT - 40, SCREEN_WIDTH, 40, self.brick_wall_texture)
         self.all_sprites.add(p1)
         self.platforms.add(p1)
         self.scrollable_sprites.add(p1)
         self.platform_edges.extend([p1.rect.left, p1.rect.right])
-        p2 = Platform(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT * 3 // 4, 100, 20)
+        p2 = Platform(SCREEN_WIDTH // 2 - 50, SCREEN_HEIGHT * 3 // 4, 100, 20, self.brick_wall_texture)
         self.all_sprites.add(p2)
         self.platforms.add(p2)
         self.scrollable_sprites.add(p2)
@@ -177,7 +178,7 @@ class Game:
             width = random.randrange(50, 100)
             p = Platform(last_platform.rect.right + random.randrange(50, 150),
                          last_platform.rect.y + random.randrange(-50, 50),
-                         width, 20)
+                         width, 20, self.brick_wall_texture)
             if p.rect.top < 50:
                 p.rect.top = 50
             if p.rect.bottom > SCREEN_HEIGHT - 50:
