@@ -101,8 +101,26 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+# Base class for all enemies
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.off_screen_timer = 0
+        self.is_off_screen = False
+
+    def update(self):
+        # Despawn if off-screen for too long
+        if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
+            if not self.is_off_screen:
+                self.is_off_screen = True
+                self.off_screen_timer = pygame.time.get_ticks()
+            elif pygame.time.get_ticks() - self.off_screen_timer > 3000:
+                self.kill()
+        else:
+            self.is_off_screen = False
+
 # Placeholder for new enemies
-class GroundPatroller(pygame.sprite.Sprite):
+class GroundPatroller(Enemy):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
@@ -116,13 +134,14 @@ class GroundPatroller(pygame.sprite.Sprite):
         self.speed = DIFFICULTY_LEVELS[self.game.difficulty]["ENEMY_SPEED"]
 
     def update(self):
+        super().update()
         # GroundPatroller is a melee enemy that moves left and right
         # Damage is handled on collision in main.py
         self.rect.x += self.direction * self.speed
         if self.rect.x > self.start_x + self.patrol_range or self.rect.x < self.start_x:
             self.direction *= -1
 
-class FlyingDrone(pygame.sprite.Sprite):
+class FlyingDrone(Enemy):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
@@ -134,6 +153,7 @@ class FlyingDrone(pygame.sprite.Sprite):
         self.last_shot = pygame.time.get_ticks()
 
     def update(self):
+        super().update()
         # Drones are stationary and shoot downwards
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
@@ -169,7 +189,7 @@ class Projectile(pygame.sprite.Sprite):
             self.kill()
 
 
-class Boss(pygame.sprite.Sprite):
+class Boss(Enemy):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
@@ -183,6 +203,7 @@ class Boss(pygame.sprite.Sprite):
         self.slamming = False
 
     def update(self):
+        super().update()
         now = pygame.time.get_ticks()
         if now - self.last_attack > self.attack_delay:
             self.last_attack = now
