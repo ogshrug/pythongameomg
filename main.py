@@ -229,17 +229,17 @@ class Game:
         pygame.display.flip()
 
     def spawn_boss(self):
-        if self.platforms:
-            platform = random.choice(list(self.platforms))
-            if platform.rect.width > 0:
-                x = random.randrange(platform.rect.left, platform.rect.right)
-                y = platform.rect.top - 150
-                boss = Boss(x, y, self)
-                self.all_sprites.add(boss)
-                self.enemies.add(boss)
-                self.scrollable_sprites.add(boss)
-                self.boss_incoming = True
-                self.boss_incoming_timer = pygame.time.get_ticks()
+        on_screen_platforms = [p for p in self.platforms if p.rect.right > 0 and p.rect.left < SCREEN_WIDTH and p.rect.width > 0]
+        if on_screen_platforms:
+            platform = random.choice(on_screen_platforms)
+            x = random.randrange(platform.rect.left, platform.rect.right)
+            y = platform.rect.top - 150
+            boss = Boss(x, y, self)
+            self.all_sprites.add(boss)
+            self.enemies.add(boss)
+            self.scrollable_sprites.add(boss)
+            self.boss_incoming = True
+            self.boss_incoming_timer = pygame.time.get_ticks()
 
     def draw_ui(self):
         # Draw the UI
