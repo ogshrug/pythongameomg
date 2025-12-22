@@ -16,7 +16,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         super().__init__()
         self.game = game
-        self.image = self.game.spritesheet.spritesheet
+        self.original_image = self.game.spritesheet.spritesheet
+        self.image = self.original_image
         self.rect = self.image.get_rect()
         self.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -44,6 +45,11 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.acc.x = PLAYER_ACC
             self.last_direction = "right"
+
+        if self.last_direction == "left":
+            self.image = pygame.transform.flip(self.original_image, True, False)
+        else:
+            self.image = self.original_image
 
         # apply friction
         self.acc.x += self.vel.x * PLAYER_FRICTION
