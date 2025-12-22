@@ -175,14 +175,12 @@ class Game:
            num_flying_enemies < MAX_FLYING_ENEMIES and \
            now - self.last_enemy_kill_time > ENEMY_RESPAWN_COOLDOWN:
             self.last_drone_spawn = now
-            if self.platforms:
-                platform = random.choice(list(self.platforms))
-                x = random.randrange(platform.rect.left, platform.rect.right)
-                y = platform.rect.top - 100
-                drone = FlyingDrone(x, y, self)
-                self.all_sprites.add(drone)
-                self.enemies.add(drone)
-                self.scrollable_sprites.add(drone)
+            x = random.randrange(0, SCREEN_WIDTH)
+            y = random.randrange(0, 50)
+            drone = FlyingDrone(x, y, self)
+            self.all_sprites.add(drone)
+            self.enemies.add(drone)
+            self.scrollable_sprites.add(drone)
 
         # Procedural platform generation
         while len(self.platforms) < 10:
