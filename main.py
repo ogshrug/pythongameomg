@@ -356,7 +356,7 @@ class Game:
             return
         self.screen.fill(BLACK)
         self.draw_text("GAME OVER", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
-        self.draw_text("Press any key to restart", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.draw_text("Press any key to return to the main menu", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         pygame.display.flip()
         self.wait_for_any_key()
 
@@ -365,13 +365,13 @@ class Game:
             return
         self.screen.fill(BLACK)
         self.draw_text("You Win!", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
-        self.draw_text("Press any key to play again", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.draw_text("Press any key to return to the main menu", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         pygame.display.flip()
         self.wait_for_any_key()
 
 g = Game()
-g.show_start_screen()
 while g.running:
+    g.show_start_screen()
     g.new()
     if g.game_won:
         g.show_win_screen()
