@@ -72,7 +72,10 @@ class Player(pygame.sprite.Sprite):
 
         for enemy in self.game.enemies:
             if hitbox_rect.colliderect(enemy.rect):
-                enemy.kill()
+                if isinstance(enemy, Boss):
+                    enemy.health -= MELEE_DAMAGE * (1 - enemy.melee_resistance)
+                else:
+                    enemy.kill()
                 self.game.score += 5
 
     def take_damage(self, amount):
@@ -175,16 +178,20 @@ class SlamEffect(pygame.sprite.Sprite):
             self.kill()
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, x, y, direction="down"):
+    def __init__(self, x, y, direction="down", vel=None):
         super().__init__()
         self.image = pygame.Surface((10, 20))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x, y)
-        self.speedy = 5 if direction == "down" else -5
+        if vel:
+            self.vel = vel
+        else:
+            self.vel = pygame.math.Vector2(0, 5 if direction == "down" else -5)
 
     def update(self):
-        self.rect.y += self.speedy
+        self.rect.x += self.vel.x
+        self.rect.y += self.vel.y
         if self.rect.bottom > SCREEN_HEIGHT or self.rect.top < 0:
             self.kill()
 
@@ -193,11 +200,11 @@ class Boss(Enemy):
     def __init__(self, x, y, game):
         super().__init__()
         self.game = game
-        self.image = pygame.Surface((100, 100))
-        self.image.fill(RED)
+        self.image = self.game.boss_spritesheet.spritesheet
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.health = BOSS_HEALTH
+        self.melee_resistance = BOSS_MELEE_RESISTANCE
         self.attack_delay = 2000
         self.last_attack = pygame.time.get_ticks()
         self.slamming = False
@@ -207,11 +214,14 @@ class Boss(Enemy):
         now = pygame.time.get_ticks()
         if now - self.last_attack > self.attack_delay:
             self.last_attack = now
-            attack_type = random.choice(["slam", "volley"])
-            if attack_type == "slam":
-                self.ground_slam()
+            if self.health < BOSS_HEALTH / 2:
+                self.spiral_attack()
             else:
-                self.projectile_volley()
+                attack_type = random.choice(["slam", "volley"])
+                if attack_type == "slam":
+                    self.ground_slam()
+                else:
+                    self.projectile_volley()
 
     def ground_slam(self):
         self.slamming = True
@@ -224,7 +234,15 @@ class Boss(Enemy):
     def projectile_volley(self):
         for i in range(5):
             projectile = Projectile(self.rect.centerx, self.rect.bottom)
-            projectile.speedy = random.randint(3, 8)
-            projectile.rect.x += random.randint(-50, 50)
+            projectile.vel.y = random.randint(3, 8)
+            projectile.vel.x = random.randint(-5, 5)
+            self.game.all_sprites.add(projectile)
+            self.game.enemy_projectiles.add(projectile)
+
+    def spiral_attack(self):
+        for i in range(36):
+            angle = i * 10
+            vel = pygame.math.Vector2(1, 0).rotate(angle) * 5
+            projectile = Projectile(self.rect.centerx, self.rect.centery, vel=vel)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
