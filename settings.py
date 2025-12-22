@@ -42,6 +42,7 @@ BOSS_MELEE_RESISTANCE = 0.5
 
 # Abilities
 MELEE_DAMAGE = 50
+PROJECTILE_SPEED = 5
 
 # Difficulty settings
 DIFFICULTY_LEVELS = {
