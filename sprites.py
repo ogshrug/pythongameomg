@@ -69,7 +69,8 @@ class Player(pygame.sprite.Sprite):
     def kinetic_blast(self):
         if self.energy >= KINETIC_BLAST_COST:
             self.energy -= KINETIC_BLAST_COST
-            blast = Projectile(self.game, self.pos.x, self.pos.y, "up")
+            vel = pygame.math.Vector2(0, -PROJECTILE_SPEED)
+            blast = Projectile(self.game, self.pos.x, self.pos.y, vel)
             self.game.all_sprites.add(blast)
             self.game.projectiles.add(blast)
 
@@ -199,7 +200,8 @@ class FlyingDrone(Enemy):
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
-            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom, direction="down")
+            vel = pygame.math.Vector2(0, PROJECTILE_SPEED)
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom, vel)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
 
@@ -216,21 +218,14 @@ class SlamEffect(pygame.sprite.Sprite):
             self.kill()
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, direction="down", vel=None):
+    def __init__(self, game, x, y, vel):
         super().__init__()
         self.game = game
         self.image = self.game.bullet_spritesheet.spritesheet
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x, y)
-        if vel is not None:
-            self.vel = vel
-        else:
-            self.vel = pygame.math.Vector2(0, 5 if direction == "down" else -5)
-
-        if vel is not None:
-            self.image = pygame.transform.rotate(self.image, -self.vel.angle_to(pygame.math.Vector2(0, -1)))
-        elif direction == "down":
-            self.image = pygame.transform.flip(self.image, False, True)
+        self.vel = vel
+        self.image = pygame.transform.rotate(self.image, -self.vel.angle_to(pygame.math.Vector2(0, -1)))
 
 
     def update(self):
@@ -285,15 +280,15 @@ class Boss(Enemy):
 
     def projectile_volley(self):
         for i in range(5):
-            vel = pygame.math.Vector2(random.randint(-5, 5), random.randint(3, 8))
-            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom, vel=vel)
+            vel = pygame.math.Vector2(random.randint(-5, 5), random.randint(3, 8)).normalize() * PROJECTILE_SPEED
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom, vel)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
 
     def spiral_attack(self):
         for i in range(18):  # Reduced from 36
             angle = i * 20  # Increased from 10
-            vel = pygame.math.Vector2(1, 0).rotate(angle) * 5
-            projectile = Projectile(self.game, self.rect.centerx, self.rect.centery, vel=vel)
+            vel = pygame.math.Vector2(1, 0).rotate(angle) * PROJECTILE_SPEED
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.centery, vel)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
