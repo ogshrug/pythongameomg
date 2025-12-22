@@ -31,6 +31,7 @@ class Game:
         self.drone_spritesheet = Spritesheet("drone-fullsize.png")
         self.groundenemy_spritesheet = Spritesheet("groundenemy-32x32-topleft.png")
         self.boss_spritesheet = Spritesheet("bossvector.png")
+        self.bullet_spritesheet = Spritesheet("bullet-fullsize.png")
         self.brick_wall_texture = pygame.image.load(resource_path("brick_wall.png")).convert_alpha()
         try:
             self.sword_spritesheet = Spritesheet("sword.png")

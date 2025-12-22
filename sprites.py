@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
     def kinetic_blast(self):
         if self.energy >= KINETIC_BLAST_COST:
             self.energy -= KINETIC_BLAST_COST
-            blast = Projectile(self.pos.x, self.pos.y, "up")
+            blast = Projectile(self.game, self.pos.x, self.pos.y, "up")
             self.game.all_sprites.add(blast)
             self.game.projectiles.add(blast)
 
@@ -199,7 +199,7 @@ class FlyingDrone(Enemy):
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
-            projectile = Projectile(self.rect.centerx, self.rect.bottom)
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
 
@@ -216,10 +216,10 @@ class SlamEffect(pygame.sprite.Sprite):
             self.kill()
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, x, y, direction="down", vel=None):
+    def __init__(self, game, x, y, direction="down", vel=None):
         super().__init__()
-        self.image = pygame.Surface((10, 20))
-        self.image.fill(RED)
+        self.game = game
+        self.image = self.game.bullet_spritesheet.spritesheet
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x, y)
         if vel:
@@ -279,7 +279,7 @@ class Boss(Enemy):
 
     def projectile_volley(self):
         for i in range(5):
-            projectile = Projectile(self.rect.centerx, self.rect.bottom)
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom)
             projectile.vel.y = random.randint(3, 8)
             projectile.vel.x = random.randint(-5, 5)
             self.game.all_sprites.add(projectile)
@@ -289,6 +289,6 @@ class Boss(Enemy):
         for i in range(18):  # Reduced from 36
             angle = i * 20  # Increased from 10
             vel = pygame.math.Vector2(1, 0).rotate(angle) * 5
-            projectile = Projectile(self.rect.centerx, self.rect.centery, vel=vel)
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.centery, vel=vel)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
