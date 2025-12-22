@@ -222,10 +222,16 @@ class Projectile(pygame.sprite.Sprite):
         self.image = self.game.bullet_spritesheet.spritesheet
         self.rect = self.image.get_rect()
         self.rect.midbottom = (x, y)
-        if vel:
+        if vel is not None:
             self.vel = vel
         else:
             self.vel = pygame.math.Vector2(0, 5 if direction == "down" else -5)
+
+        if vel is not None:
+            self.image = pygame.transform.rotate(self.image, -self.vel.angle_to(pygame.math.Vector2(0, -1)))
+        elif direction == "down":
+            self.image = pygame.transform.flip(self.image, False, True)
+
 
     def update(self):
         self.rect.x += self.vel.x
@@ -279,9 +285,8 @@ class Boss(Enemy):
 
     def projectile_volley(self):
         for i in range(5):
-            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom)
-            projectile.vel.y = random.randint(3, 8)
-            projectile.vel.x = random.randint(-5, 5)
+            vel = pygame.math.Vector2(random.randint(-5, 5), random.randint(3, 8))
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom, vel=vel)
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
 
