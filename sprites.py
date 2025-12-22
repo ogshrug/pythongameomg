@@ -199,7 +199,7 @@ class FlyingDrone(Enemy):
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
-            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom)
+            projectile = Projectile(self.game, self.rect.centerx, self.rect.bottom, direction="down")
             self.game.all_sprites.add(projectile)
             self.game.enemy_projectiles.add(projectile)
 
