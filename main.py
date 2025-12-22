@@ -164,12 +164,13 @@ class Game:
             self.last_enemy_spawn = now
             if self.platforms:
                 platform = random.choice(list(self.platforms))
-                x = random.randrange(platform.rect.left, platform.rect.right)
-                y = platform.rect.top - 30
-                enemy = GroundPatroller(x, y, self)
-                self.all_sprites.add(enemy)
-                self.enemies.add(enemy)
-                self.scrollable_sprites.add(enemy)
+                if platform.rect.width > 0:
+                    x = random.randrange(platform.rect.left, platform.rect.right)
+                    y = platform.rect.top - 30
+                    enemy = GroundPatroller(x, y, self)
+                    self.all_sprites.add(enemy)
+                    self.enemies.add(enemy)
+                    self.scrollable_sprites.add(enemy)
         # Flying drones
         if now - self.last_drone_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] * 2 and \
            num_flying_enemies < MAX_FLYING_ENEMIES and \
@@ -230,14 +231,15 @@ class Game:
     def spawn_boss(self):
         if self.platforms:
             platform = random.choice(list(self.platforms))
-            x = random.randrange(platform.rect.left, platform.rect.right)
-            y = platform.rect.top - 150
-            boss = Boss(x, y, self)
-            self.all_sprites.add(boss)
-            self.enemies.add(boss)
-            self.scrollable_sprites.add(boss)
-            self.boss_incoming = True
-            self.boss_incoming_timer = pygame.time.get_ticks()
+            if platform.rect.width > 0:
+                x = random.randrange(platform.rect.left, platform.rect.right)
+                y = platform.rect.top - 150
+                boss = Boss(x, y, self)
+                self.all_sprites.add(boss)
+                self.enemies.add(boss)
+                self.scrollable_sprites.add(boss)
+                self.boss_incoming = True
+                self.boss_incoming_timer = pygame.time.get_ticks()
 
     def draw_ui(self):
         # Draw the UI

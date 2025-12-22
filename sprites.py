@@ -73,10 +73,14 @@ class Player(pygame.sprite.Sprite):
         for enemy in self.game.enemies:
             if hitbox_rect.colliderect(enemy.rect):
                 if isinstance(enemy, Boss):
-                    enemy.health -= MELEE_DAMAGE * (1 - enemy.melee_resistance)
+                    damage = MELEE_DAMAGE * (1 - enemy.melee_resistance)
+                    enemy.health = max(0, enemy.health - damage)
+                    if enemy.health == 0:
+                        enemy.kill()
+                        self.game.score += 100
                 else:
                     enemy.kill()
-                self.game.score += 5
+                    self.game.score += 5
 
     def take_damage(self, amount):
         if not self.invulnerable:
@@ -192,7 +196,12 @@ class Projectile(pygame.sprite.Sprite):
     def update(self):
         self.rect.x += self.vel.x
         self.rect.y += self.vel.y
-        if self.rect.bottom > SCREEN_HEIGHT or self.rect.top < 0:
+        if (
+            self.rect.bottom > SCREEN_HEIGHT
+            or self.rect.top < 0
+            or self.rect.right < 0
+            or self.rect.left > SCREEN_WIDTH
+        ):
             self.kill()
 
 
@@ -207,6 +216,8 @@ class Boss(Enemy):
         self.melee_resistance = BOSS_MELEE_RESISTANCE
         self.attack_delay = 2000
         self.last_attack = pygame.time.get_ticks()
+        self.spiral_attack_cooldown = 5000  # 5 seconds
+        self.last_spiral_attack = 0
         self.slamming = False
 
     def update(self):
@@ -214,8 +225,9 @@ class Boss(Enemy):
         now = pygame.time.get_ticks()
         if now - self.last_attack > self.attack_delay:
             self.last_attack = now
-            if self.health < BOSS_HEALTH / 2:
+            if self.health < BOSS_HEALTH / 2 and now - self.last_spiral_attack > self.spiral_attack_cooldown:
                 self.spiral_attack()
+                self.last_spiral_attack = now
             else:
                 attack_type = random.choice(["slam", "volley"])
                 if attack_type == "slam":
@@ -240,8 +252,8 @@ class Boss(Enemy):
             self.game.enemy_projectiles.add(projectile)
 
     def spiral_attack(self):
-        for i in range(36):
-            angle = i * 10
+        for i in range(18):  # Reduced from 36
+            angle = i * 20  # Increased from 10
             vel = pygame.math.Vector2(1, 0).rotate(angle) * 5
             projectile = Projectile(self.rect.centerx, self.rect.centery, vel=vel)
             self.game.all_sprites.add(projectile)
