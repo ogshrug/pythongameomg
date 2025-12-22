@@ -90,10 +90,13 @@ class Player(pygame.sprite.Sprite):
             self.last_hit_time = pygame.time.get_ticks()
 
 class Platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y, w, h, texture):
         super().__init__()
         self.image = pygame.Surface((w, h))
-        self.image.fill(GREEN)
+        texture_width, texture_height = texture.get_size()
+        for i in range(0, w, texture_width):
+            for j in range(0, h, texture_height):
+                self.image.blit(texture, (i, j))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
