@@ -34,6 +34,11 @@ class Game:
         self.bullet_spritesheet = Spritesheet("bullet-fullsize.png")
         self.brick_wall_texture = pygame.image.load(resource_path("brick_wall.png")).convert_alpha()
         try:
+            self.background_image = pygame.image.load(resource_path("background.png")).convert()
+            self.background_image = pygame.transform.scale(self.background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        except (pygame.error, FileNotFoundError):
+            self.background_image = None
+        try:
             self.sword_spritesheet = Spritesheet("sword.png")
         except (pygame.error, FileNotFoundError):
             self.sword_spritesheet = None
@@ -231,7 +236,10 @@ class Game:
 
     def draw(self):
         # Game Loop - draw
-        self.screen.fill(BLACK)
+        if self.background_image:
+            self.screen.blit(self.background_image, (0, 0))
+        else:
+            self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
         self.draw_ui()
         # *after* drawing everything, flip the display
