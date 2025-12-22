@@ -65,6 +65,7 @@ class Game:
         enemy = GroundPatroller(p2.rect.centerx, p2.rect.top - 30, self)
         self.all_sprites.add(enemy)
         self.enemies.add(enemy)
+        self.scrollable_sprites.add(enemy)
 
         self.run()
 
@@ -119,11 +120,14 @@ class Game:
                         self.spawn_boss()
 
         # Scroll the screen
+        scroll_speed = max(abs(self.player.vel.x), 2)
         if self.player.rect.right >= SCREEN_WIDTH * 3 // 4:
-            self.player.pos.x -= max(abs(self.player.vel.x), 2)
+            self.player.pos.x -= scroll_speed
             for sprite in self.scrollable_sprites:
-                sprite.rect.x -= max(abs(self.player.vel.x), 2)
-                if sprite.rect.right < 0:
+                sprite.rect.x -= scroll_speed
+                if isinstance(sprite, GroundPatroller):
+                    sprite.start_x -= scroll_speed
+                if sprite.rect.right < 0 and not isinstance(sprite, (GroundPatroller, FlyingDrone, Boss)):
                     sprite.kill()
                     if isinstance(sprite, Platform):
                         try:
@@ -133,10 +137,12 @@ class Game:
                             pass
 
         if self.player.rect.left <= SCREEN_WIDTH // 4:
-            self.player.pos.x += max(abs(self.player.vel.x), 2)
+            self.player.pos.x += scroll_speed
             for sprite in self.scrollable_sprites:
-                sprite.rect.x += max(abs(self.player.vel.x), 2)
-                if sprite.rect.left > SCREEN_WIDTH:
+                sprite.rect.x += scroll_speed
+                if isinstance(sprite, GroundPatroller):
+                    sprite.start_x += scroll_speed
+                if sprite.rect.left > SCREEN_WIDTH and not isinstance(sprite, (GroundPatroller, FlyingDrone, Boss)):
                     sprite.kill()
                     if isinstance(sprite, Platform):
                         try:
@@ -161,6 +167,7 @@ class Game:
                 enemy = GroundPatroller(x, y, self)
                 self.all_sprites.add(enemy)
                 self.enemies.add(enemy)
+                self.scrollable_sprites.add(enemy)
         # Flying drones
         if now - self.last_drone_spawn > DIFFICULTY_LEVELS[self.difficulty]["ENEMY_SPAWN_RATE"] * 2 and \
            num_flying_enemies < MAX_FLYING_ENEMIES and \
@@ -171,6 +178,7 @@ class Game:
             drone = FlyingDrone(x, y, self)
             self.all_sprites.add(drone)
             self.enemies.add(drone)
+            self.scrollable_sprites.add(drone)
 
         # Procedural platform generation
         while len(self.platforms) < 10:
@@ -221,6 +229,7 @@ class Game:
         boss = Boss(SCREEN_WIDTH // 2, 50, self)
         self.all_sprites.add(boss)
         self.enemies.add(boss)
+        self.scrollable_sprites.add(boss)
         self.boss_incoming = True
         self.boss_incoming_timer = pygame.time.get_ticks()
 
