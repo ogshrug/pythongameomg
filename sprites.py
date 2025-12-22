@@ -88,7 +88,7 @@ class Player(pygame.sprite.Sprite):
             if hitbox_rect.colliderect(enemy.rect):
                 if isinstance(enemy, Boss):
                     damage = MELEE_DAMAGE * (1 - enemy.melee_resistance)
-                    enemy.health = max(0, enemy.health - damage)
+                    enemy.health = max(0, int(enemy.health - damage))
                     if enemy.health == 0:
                         enemy.kill()
                         self.game.score += 100
@@ -106,7 +106,7 @@ class Player(pygame.sprite.Sprite):
                     self.pos = pygame.math.Vector2(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                     self.vel = pygame.math.Vector2(0, 0)
                 else:
-                    self.game.playing = False # Game over
+                    self.game.playing = False
             self.invulnerable = True
             self.last_hit_time = pygame.time.get_ticks()
 
@@ -120,15 +120,15 @@ class Sword(pygame.sprite.Sprite):
             self.image = pygame.Surface((64, 32), pygame.SRCALPHA)
             self.image.fill(GREEN)
         self.rect = self.image.get_rect()
-        if self.player.last_direction == "right": # Facing right
+        if self.player.last_direction == "right":
             self.rect.left = self.player.rect.right
-        else: # Facing left
+        else:
             self.rect.right = self.player.rect.left
         self.rect.centery = self.player.rect.centery
         self.spawn_time = pygame.time.get_ticks()
 
     def update(self):
-        if pygame.time.get_ticks() - self.spawn_time > 100: # 100ms lifespan
+        if pygame.time.get_ticks() - self.spawn_time > 100:
             self.kill()
 
 class Platform(pygame.sprite.Sprite):
@@ -143,7 +143,6 @@ class Platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
-# Base class for all enemies
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -151,7 +150,6 @@ class Enemy(pygame.sprite.Sprite):
         self.is_off_screen = False
 
     def update(self):
-        # Despawn if off-screen for too long
         if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
             if not self.is_off_screen:
                 self.is_off_screen = True
@@ -161,7 +159,6 @@ class Enemy(pygame.sprite.Sprite):
         else:
             self.is_off_screen = False
 
-# Placeholder for new enemies
 class GroundPatroller(Enemy):
     def __init__(self, x, y, game):
         super().__init__()
@@ -177,8 +174,6 @@ class GroundPatroller(Enemy):
 
     def update(self):
         super().update()
-        # GroundPatroller is a melee enemy that moves left and right
-        # Damage is handled on collision in main.py
         self.rect.x += self.direction * self.speed
         if self.rect.x > self.start_x + self.patrol_range or self.rect.x < self.start_x:
             self.direction *= -1
@@ -196,7 +191,6 @@ class FlyingDrone(Enemy):
 
     def update(self):
         super().update()
-        # Drones are stationary and shoot downwards
         now = pygame.time.get_ticks()
         if now - self.last_shot > self.shoot_delay:
             self.last_shot = now
@@ -223,10 +217,9 @@ class Projectile(pygame.sprite.Sprite):
         self.game = game
         self.image = self.game.bullet_spritesheet.spritesheet
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (x, y)
+        self.rect.center = (x, y)
         self.vel = vel
         self.image = pygame.transform.rotate(self.image, -self.vel.angle_to(pygame.math.Vector2(0, -1)))
-
 
     def update(self):
         self.rect.x += self.vel.x
@@ -239,7 +232,6 @@ class Projectile(pygame.sprite.Sprite):
         ):
             self.kill()
 
-
 class Boss(Enemy):
     def __init__(self, x, y, game):
         super().__init__()
@@ -251,7 +243,7 @@ class Boss(Enemy):
         self.melee_resistance = BOSS_MELEE_RESISTANCE
         self.attack_delay = 2000
         self.last_attack = pygame.time.get_ticks()
-        self.spiral_attack_cooldown = 5000  # 5 seconds
+        self.spiral_attack_cooldown = 5000
         self.last_spiral_attack = 0
         self.slamming = False
 
@@ -286,8 +278,8 @@ class Boss(Enemy):
             self.game.enemy_projectiles.add(projectile)
 
     def spiral_attack(self):
-        for i in range(18):  # Reduced from 36
-            angle = i * 20  # Increased from 10
+        for i in range(18):
+            angle = i * 20
             vel = pygame.math.Vector2(1, 0).rotate(angle) * PROJECTILE_SPEED
             projectile = Projectile(self.game, self.rect.centerx, self.rect.centery, vel)
             self.game.all_sprites.add(projectile)
