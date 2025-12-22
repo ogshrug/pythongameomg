@@ -12,6 +12,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
+BOSS_HEALTH_BAR_COLOR = (113, 93, 211)
 
 # Player properties
 PLAYER_ACC = 0.5

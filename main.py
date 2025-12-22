@@ -7,7 +7,7 @@ from settings import (SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, FPS, BLACK, WHITE,
                     DASH_COOLDOWN, KINETIC_BLAST_COST, ENERGY_REGEN,
                     ENEMY_SPAWN_RATE, ENEMY_SPEED, ENEMY_DAMAGE,
                     MAX_GROUND_ENEMIES, MAX_FLYING_ENEMIES, ENEMY_RESPAWN_COOLDOWN,
-                    BOSS_HEALTH, BOSS_SPAWN_KILL_COUNT, DIFFICULTY_LEVELS)
+                    BOSS_HEALTH, BOSS_SPAWN_KILL_COUNT, DIFFICULTY_LEVELS, BOSS_HEALTH_BAR_COLOR)
 from sprites import (Player, Platform, GroundPatroller, FlyingDrone,
                      Boss, Projectile, SlamEffect, Spritesheet)
 
@@ -262,6 +262,23 @@ class Game:
         # Difficulty
         difficulty_text = font.render(f"Difficulty: {self.difficulty}", True, WHITE)
         self.screen.blit(difficulty_text, (SCREEN_WIDTH - 150, 10))
+
+        # Boss Health Bar
+        boss = None
+        for enemy in self.enemies:
+            if isinstance(enemy, Boss):
+                boss = enemy
+                break
+
+        if boss:
+            self.draw_text("Gordea", 36, WHITE, SCREEN_WIDTH // 2, 10)
+            boss_health_pct = max(0, boss.health / BOSS_HEALTH)
+            bar_width = 400
+            bar_height = 25
+            bar_x = (SCREEN_WIDTH - bar_width) // 2
+            bar_y = 50
+            pygame.draw.rect(self.screen, RED, (bar_x, bar_y, bar_width, bar_height))
+            pygame.draw.rect(self.screen, BOSS_HEALTH_BAR_COLOR, (bar_x, bar_y, bar_width * boss_health_pct, bar_height))
 
         if self.boss_incoming:
             now = pygame.time.get_ticks()
