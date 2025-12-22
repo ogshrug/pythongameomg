@@ -32,6 +32,10 @@ class Game:
         self.groundenemy_spritesheet = Spritesheet("groundenemy-32x32-topleft.png")
         self.boss_spritesheet = Spritesheet("bossvector.png")
         self.brick_wall_texture = pygame.image.load(resource_path("brick_wall.png")).convert_alpha()
+        try:
+            self.sword_spritesheet = Spritesheet("sword.png")
+        except (pygame.error, FileNotFoundError):
+            self.sword_spritesheet = None
 
     def new(self):
         # start a new game

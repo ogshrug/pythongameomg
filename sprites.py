@@ -28,6 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.invulnerable = False
         self.invulnerability_duration = 500  # ms
         self.last_hit_time = 0
+        self.last_direction = "right"
 
     def update(self):
         if self.invulnerable and pygame.time.get_ticks() - self.last_hit_time > self.invulnerability_duration:
@@ -39,8 +40,10 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.acc.x = -PLAYER_ACC
+            self.last_direction = "left"
         if keys[pygame.K_d]:
             self.acc.x = PLAYER_ACC
+            self.last_direction = "right"
 
         # apply friction
         self.acc.x += self.vel.x * PLAYER_FRICTION
@@ -66,10 +69,13 @@ class Player(pygame.sprite.Sprite):
 
     def melee_attack(self):
         # Create a hitbox for the melee attack
-        if self.vel.x >= 0:  # Facing right
+        if self.last_direction == "right":  # Facing right
             hitbox_rect = pygame.Rect(self.rect.right, self.rect.top, 64, self.rect.height)
         else:  # Facing left
             hitbox_rect = pygame.Rect(self.rect.left - 64, self.rect.top, 64, self.rect.height)
+
+        sword = Sword(self)
+        self.game.all_sprites.add(sword)
 
         for enemy in self.game.enemies:
             if hitbox_rect.colliderect(enemy.rect):
@@ -96,6 +102,27 @@ class Player(pygame.sprite.Sprite):
                     self.game.playing = False # Game over
             self.invulnerable = True
             self.last_hit_time = pygame.time.get_ticks()
+
+class Sword(pygame.sprite.Sprite):
+    def __init__(self, player):
+        super().__init__()
+        self.player = player
+        if self.player.game.sword_spritesheet:
+            self.image = self.player.game.sword_spritesheet.spritesheet
+        else:
+            self.image = pygame.Surface((64, 32), pygame.SRCALPHA)
+            self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        if self.player.last_direction == "right": # Facing right
+            self.rect.left = self.player.rect.right
+        else: # Facing left
+            self.rect.right = self.player.rect.left
+        self.rect.centery = self.player.rect.centery
+        self.spawn_time = pygame.time.get_ticks()
+
+    def update(self):
+        if pygame.time.get_ticks() - self.spawn_time > 100: # 100ms lifespan
+            self.kill()
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h, texture):
