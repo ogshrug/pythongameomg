@@ -10,6 +10,7 @@ from settings import (SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, FPS, BLACK, WHITE,
                     BOSS_HEALTH, BOSS_SPAWN_KILL_COUNT, DIFFICULTY_LEVELS, BOSS_HEALTH_BAR_COLOR)
 from sprites import (Player, Platform, GroundPatroller, FlyingDrone,
                      Boss, Projectile, SlamEffect, Spritesheet)
+from utils import resource_path
 
 class Game:
     def __init__(self):
@@ -30,7 +31,7 @@ class Game:
         self.drone_spritesheet = Spritesheet("drone-fullsize.png")
         self.groundenemy_spritesheet = Spritesheet("groundenemy-32x32-topleft.png")
         self.boss_spritesheet = Spritesheet("bossvector.png")
-        self.brick_wall_texture = pygame.image.load("brick_wall.png").convert_alpha()
+        self.brick_wall_texture = pygame.image.load(resource_path("brick_wall.png")).convert_alpha()
 
     def new(self):
         # start a new game

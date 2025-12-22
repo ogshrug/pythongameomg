@@ -1,10 +1,11 @@
 import pygame
 import random
 from settings import *
+from utils import resource_path
 
 class Spritesheet:
     def __init__(self, filename):
-        self.spritesheet = pygame.image.load(filename).convert_alpha()
+        self.spritesheet = pygame.image.load(resource_path(filename)).convert_alpha()
 
     def get_image(self, x, y, width, height):
         image = pygame.Surface((width, height), pygame.SRCALPHA)
