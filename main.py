@@ -29,6 +29,7 @@ class Game:
         self.spritesheet = Spritesheet("player-fullsize.png")
         self.drone_spritesheet = Spritesheet("drone-fullsize.png")
         self.groundenemy_spritesheet = Spritesheet("groundenemy-32x32-topleft.png")
+        self.boss_spritesheet = Spritesheet("bossvector.png")
         self.brick_wall_texture = pygame.image.load("brick_wall.png").convert_alpha()
 
     def new(self):
@@ -161,9 +162,10 @@ class Game:
            num_ground_enemies < MAX_GROUND_ENEMIES and \
            now - self.last_enemy_kill_time > ENEMY_RESPAWN_COOLDOWN:
             self.last_enemy_spawn = now
-            if self.platform_edges:
-                x = random.choice(self.platform_edges)
-                y = random.randrange(SCREEN_HEIGHT // 2, SCREEN_HEIGHT * 3 // 4)
+            if self.platforms:
+                platform = random.choice(list(self.platforms))
+                x = random.randrange(platform.rect.left, platform.rect.right)
+                y = platform.rect.top - 30
                 enemy = GroundPatroller(x, y, self)
                 self.all_sprites.add(enemy)
                 self.enemies.add(enemy)
@@ -173,12 +175,14 @@ class Game:
            num_flying_enemies < MAX_FLYING_ENEMIES and \
            now - self.last_enemy_kill_time > ENEMY_RESPAWN_COOLDOWN:
             self.last_drone_spawn = now
-            x = random.randrange(0, SCREEN_WIDTH)
-            y = random.randrange(0, 50)
-            drone = FlyingDrone(x, y, self)
-            self.all_sprites.add(drone)
-            self.enemies.add(drone)
-            self.scrollable_sprites.add(drone)
+            if self.platforms:
+                platform = random.choice(list(self.platforms))
+                x = random.randrange(platform.rect.left, platform.rect.right)
+                y = platform.rect.top - 100
+                drone = FlyingDrone(x, y, self)
+                self.all_sprites.add(drone)
+                self.enemies.add(drone)
+                self.scrollable_sprites.add(drone)
 
         # Procedural platform generation
         while len(self.platforms) < 10:
@@ -226,12 +230,16 @@ class Game:
         pygame.display.flip()
 
     def spawn_boss(self):
-        boss = Boss(SCREEN_WIDTH // 2, 50, self)
-        self.all_sprites.add(boss)
-        self.enemies.add(boss)
-        self.scrollable_sprites.add(boss)
-        self.boss_incoming = True
-        self.boss_incoming_timer = pygame.time.get_ticks()
+        if self.platforms:
+            platform = random.choice(list(self.platforms))
+            x = random.randrange(platform.rect.left, platform.rect.right)
+            y = platform.rect.top - 150
+            boss = Boss(x, y, self)
+            self.all_sprites.add(boss)
+            self.enemies.add(boss)
+            self.scrollable_sprites.add(boss)
+            self.boss_incoming = True
+            self.boss_incoming_timer = pygame.time.get_ticks()
 
     def draw_ui(self):
         # Draw the UI
