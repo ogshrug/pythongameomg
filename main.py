@@ -36,6 +36,7 @@ class Game:
         # start a new game
         self.score = 0
         self.kill_count = 0
+        self.game_won = False
         self.last_enemy_spawn = pygame.time.get_ticks()
         self.last_drone_spawn = pygame.time.get_ticks()
         self.last_enemy_kill_time = 0
@@ -112,6 +113,8 @@ class Game:
                         hit.kill()
                         self.score += 100
                         self.kill_count = 0
+                        self.game_won = True
+                        self.playing = False
                 else:
                     hit.kill()
                     self.last_enemy_kill_time = pygame.time.get_ticks()
@@ -271,14 +274,14 @@ class Game:
                 break
 
         if boss:
-            self.draw_text("Gordea", 36, WHITE, SCREEN_WIDTH // 2, 10)
             boss_health_pct = max(0, boss.health / BOSS_HEALTH)
-            bar_width = 400
-            bar_height = 25
+            bar_width = 200
+            bar_height = 15
             bar_x = (SCREEN_WIDTH - bar_width) // 2
             bar_y = 50
             pygame.draw.rect(self.screen, RED, (bar_x, bar_y, bar_width, bar_height))
             pygame.draw.rect(self.screen, BOSS_HEALTH_BAR_COLOR, (bar_x, bar_y, bar_width * boss_health_pct, bar_height))
+            self.draw_text("Gordea", 24, WHITE, SCREEN_WIDTH // 2, bar_y + bar_height + 5)
 
         if self.boss_incoming:
             now = pygame.time.get_ticks()
@@ -339,7 +342,16 @@ class Game:
             return
         self.screen.fill(BLACK)
         self.draw_text("GAME OVER", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
-        self.draw_text("Press a key to play again", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        self.draw_text("Press any key to restart", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+        pygame.display.flip()
+        self.wait_for_any_key()
+
+    def show_win_screen(self):
+        if not self.running:
+            return
+        self.screen.fill(BLACK)
+        self.draw_text("You Win!", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
+        self.draw_text("Press any key to play again", 22, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
         pygame.display.flip()
         self.wait_for_any_key()
 
@@ -347,7 +359,10 @@ g = Game()
 g.show_start_screen()
 while g.running:
     g.new()
-    g.show_go_screen()
+    if g.game_won:
+        g.show_win_screen()
+    else:
+        g.show_go_screen()
 
 pygame.quit()
 sys.exit()
