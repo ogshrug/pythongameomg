@@ -246,6 +246,8 @@ class Game:
         pygame.display.flip()
 
     def spawn_boss(self):
+        if any(isinstance(e, Boss) for e in self.enemies):
+            return
         on_screen_platforms = [p for p in self.platforms if p.rect.right > 0 and p.rect.left < SCREEN_WIDTH and p.rect.width > 0]
         if on_screen_platforms:
             platform = random.choice(on_screen_platforms)
